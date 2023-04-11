@@ -1,32 +1,63 @@
 # Ensemble_Learning
-Repository containing code used for "Crowd-sourced Deep Learning for Intracranial Hemorrhage Identification: Wisdom of Crowds or Laissez Faire Information Corruption". All code was developed using MATLAB R2020a.
+Repository containing code used for "Crowd-sourced Deep Learning for Intracranial Hemorrhage Identification: Wisdom of Crowds or Laissez Faire". All code was developed using MATLAB R2020a.
 
 ## Pre-processing data
-DICOM data can be converted to TIFF files by running the script `createTIF_ICH`. In the file the load and save path need to be specified, as well as the location and name of the .xlsx file containing annotations. Every slice will be saved as a TIFF file. Two examples of saved 2D slices can be seen below.
+1. To convert DICOM data to TIF files run the following script in MATLAB:
+
+```
+createTIF_ICH
+```
+
+In this script the 'path_load' and 'path_save' need to be specified, as well as the path to the 'Annotations.xlsx' file containing annotations. The script will save every slice as a TIFF file and save an annotations file 'new_labels'. The annotations file (ICH = 1, No ICH = 0) describes the number of the slice where the hemorrhage starts and where it ends for every scan. Two examples of saved 2D slices can be seen below:
 
 ![image](/images/im0020_caseT1_noMask.PNG)  ![image](/images/im0245_caseT20_noMask.PNG)
 
-Additionally, the annotations file is used to save annotations (ICH = 1, No ICH = 0) for every slice in an array. The annotations file describes the number of the slice where the hemorrhage starts and where it ends for every scan. The resulting labelling is also saved.
+2. Remove visible head support in TIF files by running:
 
-After this the script `MaskBrain` can be run to remove the visible head support in TIFF files of the slices. Paths to TIFF files and the output need to specified. Two resulting examples can be seen below.
+```
+MaskBrain
+```
+
+Again 'path_load' and 'path_save' need to be specified. Examples of the saved output:
 
 ![image](/images/im0020_caseT1.PNG)   ![image](/images/im0245_caseT20.PNG)
 
-All 2D slices should be manually divided patient-wise into four sets in which the ratio ICH/NoICH is approximately similar (~34% ICH). The four sets consist of 1) Training set for individual CNNs (48% of all data), 2) Validation set for inidvidual CNNs (12% of all data), 3) Training set for ensemble learning methods (28% of all data), 4) Test set for both inidividual CNNs and ensemble learning methods (12% of all data). The labels array additionally needs to be split to match the created 4 sets. Alternatively, this patient-wise split could be realised using the DICOM data before any processing, which would take away the need to do that at this point.
+## Data split
+Split into the four sets was realised manually to ensure and approximately similar ratio (~34% ICH) of ICH/No-ICH:
+All 2D slices were manually divided patient-wise into: 1) Training set for individual CNNs (48% of all data), 2) Validation set for inidvidual CNNs (12% of all data), 3) Training set for ensemble learning methods (28% of all data), 4) Test set for both inidividual CNNs and ensemble learning methods (12% of all data). The labels array additionally needs to be split to match the created 4 sets. Alternatively, this patient-wise split could be realised using the DICOM data before any processing, which would take away the need to do that at this point.
 
-Subsequently image datastores can be created by running `createDatastores`, necessary for training the different networks. Locations of the 2D slices and the annotations file need to be defined in the script. This resulting variable is saved and can be used for training. 
+3. To create image datastores from the four sets run:
+
+```
+createDatastores
+```
+
+Path to 2D TIF files and annotations needs to be defined. Script saves image datastores for every set that are used to train the networks. 
 
 ## Training seperate networks
-Run `Train_new_network` to train the individual CNNs. It requires paths to the image datastores, to the layers of the CNNs and the output path to store the trained networks. Subsequently, it tests every trained network on the Test set and its accuracy, sensitivity and specificity are saved in a struct for each network. !Important: Results might vary from the manuscript due to the stochastic nature of training CNNs!
+4. Train individual CNNs by running:
+
+```
+Train_new_network
+```
+
+Define the path to image datastores, the layers of the CNNs and the output path to store the trained networks. The script will save trained networks and specs of the networks (sensitivity/specificty) 
+!Important: Results might vary due to the stochastic nature of training CNNs!
 
 ## Training ensembles and mrmr algorithm
-Running `Ensemble_Learning` requires paths to the image datastores and the trained networks and will obtain the prediction (probability that the image doesn't have ICH) for every image from every network. The predictions on 3) are used for analyses with the Minimum Redundancy Maximum Relevance (MRMR) algorithm, applying Majority Voting (MV) and for training the ensemble methods Decision Tree (DT), Support Vector Machine (SVM) and Multi-Input Deep Neural Network (MI-DNN). The MI-DNN is similar to a CNN or DNN, but in addition to the image, the array with predictions from the individual CNNs is also an input. Both inputs are merged at a later point (see Figure below).
+5. To train the Ensemble Learning techniques, run:
+
+```
+Ensemble_Learning
+```
+
+Specify path to the image datastores and the trained networks in the script. Output is the prediction (probability that the image doesn't have ICH) for every image from every network on 3) and 4) as well as accuracies of the different techniques (see workspace).
+
+The predictions on 3) are used for analyses with the Minimum Redundancy Maximum Relevance (MRMR) algorithm, applying Majority Voting (MV) and for training the ensemble methods Decision Tree (DT), Support Vector Machine (SVM) and Multi-Input Deep Neural Network (MI-DNN). The MI-DNN is similar to a CNN or DNN, but in addition to the image, the array with predictions from the individual CNNs is also an input. Both inputs are merged at a later point (see Figure below).
 
 ![image](/images/mi-dnn.png)
 
-To test MV and the trained DT, SVM, and MI-DNN, the predictions on 4) are used. Accuracies on 4) for each Ensemble Learning method are determined and stored as a variable and can be viewed in the Workspace.
+To test MV and the trained DT, SVM, and MI-DNN, the predictions on 4) are used and accuracies are calculated.
 
-## Showing results in Figure
-Run `make_figure1` to create Figure 3 from the manuscript. It requires an array of the accuracies of the CNNs on 4) and the accuracies of the Ensemble Learning methods need to be added in order to reproduce a similar Figure (see Figure below). 
-
-![image](/images/Figure3.png)
+## Citation
+Citation to manuscript:
