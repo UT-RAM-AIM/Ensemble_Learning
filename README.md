@@ -69,4 +69,7 @@ To test MV and the trained DT, SVM, and MI-DNN, the predictions on the last test
 
 ## Citation
 
-Citation to manuscript: TBD
+Citation to manuscript: 
+
+E.I.S. Hofmeijer, C.O. Tan, F. van der Heijden, R. Gupta: "Crowd-Sourced Deep Learning for Intracranial Hemorrhage Identification: Wisdom of Crowds or Laissez-Faire", American Journal of Neuroradiology Jun 2023, DOI: 10.3174/ajnr.A7902
+
